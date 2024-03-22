@@ -2,19 +2,21 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"gee"
 	"net/http"
 )
 
 func main() {
+	r := gee.New()
+	r.GET("/", func(w http.ResponseWriter, req *http.Request) {
+		fmt.Fprintf(w, "URL.Path = %q\n", req.URL.Path)
+	})
 
-	http.HandleFunc("/hello", handler)
-	log.Fatal(http.ListenAndServe(":8000", nil))
-}
+	r.GET("/hello", func(w http.ResponseWriter, req *http.Request) {
+		for k, v := range req.Header {
+			fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
+		}
+	})
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprintf(w, "URL.Path = %q \n", r.URL.Path)
-	if err != nil {
-		return
-	}
+	r.Run(":9999")
 }
